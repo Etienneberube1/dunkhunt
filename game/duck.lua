@@ -2,7 +2,7 @@
 local duckList = {}
 local delay = 1
 
-
+local powerUp = require("PowerUp")
 
 
 function createDuck()
@@ -10,18 +10,19 @@ function createDuck()
 
     local duck = {}
 
-
+    
     duck.image = love.graphics.newImage("assets/duck.png")
-
+    
     duck.width = duck.image:getWidth()
     duck.height = duck.image:getHeight()
-
+    
+    
     duck.despawnDelay = 10.0
 
     duck.value = 500
 
     duck.x = math.random(0, love.graphics.getWidth() - duck.width)
-    duck.y = 500
+    duck.y = 400
     duck.x_velocity, duck.y_velocity = 1, -1
 
     duck.speed = math.random( 130, 200)
