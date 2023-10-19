@@ -1,6 +1,8 @@
+
 local duck = require("duck")
 local powerUp = require("PowerUp")
 
+love.window.setTitle("DUNK HUNT")
 
 
 _scoreImage = love.graphics.newImage("assets/scoreImage.png")
@@ -26,22 +28,26 @@ function love.load()
 
     Load_Menu()
     Load_Game()
-
+    Load_GameOver()
 end
 
 function love.draw()
     if game_state == 0 then
         Draw_Menu()
-    else
+    elseif game_state == 1 then
         Draw_Game()
+    else 
+        Draw_GameOver()
     end
 end
 
 function love.update(dt)
     if game_state == 0 then
         Update_Menu(dt)
-    else
+    elseif game_state == 1 then
         Update_Game(dt)
+    else
+        Update_GameOver()
     end
 end
 ---------------------------------------------------------
@@ -96,7 +102,7 @@ function Load_Game()
     _maxBullet = 10
     _currentBullet = 0
 
-    _currentBullet = _maxBullet + 1
+    _currentBullet = _maxBullet
 
 
     Load_BackGround()
@@ -134,6 +140,31 @@ function Update_Game(dt)
     _mouseX = love.mouse.getX()
     _mouseY = love.mouse.getY()
     
+    
+    -- making sure the score dosent go below 0
+    if _score < 0 then
+        _score = 0
+    end
+
+    -- making sure the bullet dosent go below max bullet or below 0
+    if _currentBullet > _maxBullet then
+        _currentBullet = _maxBullet
+    elseif _currentBullet < 0 then
+        _currentBullet = 0
+        game_state = 2
+    end
+
+    -- checking if mouse is over a powerUP
+    for i, powerUpInstances in pairs(powerUp.powerUpList) do
+
+        if checkCollision(_mouseX, _mouseY, powerUpInstances.x, powerUpInstances.y, powerUpInstances.width, powerUpInstances.height) then
+            print("powerUp hit")
+            powerUpInstances:gotCollected()
+            table.remove( powerUp.powerUpList, i )
+            break
+
+        end
+    end
 end
 
 -------------------BACKGROUND----------------------------
@@ -149,20 +180,31 @@ end
 ---------------------COLLISON DETECTION------------------
 function love.mousepressed(x, y, button, istouch, presses)
 
-    if button == 1 then -- Checks if left mouse button is pressed.
-        _currentBullet = _currentBullet - 1
+    if button == 1 then -- Checks if left mouse button is pressed
+
+
+        -- making sure we only use bullet when in game
+
+        if game_state == 1 then
+            _currentBullet = _currentBullet - 1
+        end
+
+
+
+
         for i, duckInstance in ipairs(duck.duckList) do
 
-            if checkCollision(x, y, duckInstance.x, duckInstance.y, duckInstance.width, duckInstance.height) then
+            if checkCollision(x, y, duckInstance.x, duckInstance.y, duckInstance.width, duckInstance.height)  and _currentBullet > 0 then
                 
                 print("duck hit")
                 createPowerUp()
                 duckInstance:gotHit()
-                table.remove(duck.duckList, i) -- remove duck form the list    
                 break
             
             else
-                _score = _score - 475
+                if _score > 0 then
+                    _score = _score - 475
+                end
             end
         end
     end
@@ -186,6 +228,11 @@ end
 
 function Update_Timer(dt)
     _timer = _timer - dt
+
+    if _timer <= 0 then
+        game_state = 2
+    end
+    
 end
 ---------------------------------------------------------
 
@@ -209,5 +256,39 @@ end
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
+-------------------------------------------GAMEOVER_MENU------------------------------------------------------------------------------------------------
+function Load_GameOver()
+    _GameOverBG = love.graphics.newImage("assets/gameoverBg.png")
+    _GObuttonImage = love.graphics.newImage("assets/button.png")
+    
+    _GObuttonWidht = _buttonImage:getWidth()
+    _GObuttonHeight = _buttonImage:getHeight()
+
+    _GObuttonX = 320
+    _GObuttonY = 380
+end
+
+function Draw_GameOver()
+    love.graphics.draw(_GameOverBG)
+    love.graphics.draw(_GObuttonImage, _GObuttonX, _GObuttonY)
+
+    Draw_Crosshair()
+
+end
+
+function Update_GameOver()
+    _mouseX = love.mouse.getX()
+    _mouseY = love.mouse.getY()
+    
+
+    if love.mouse.isDown(1) then 
+        if checkCollision(_mouseX, _mouseY, _GObuttonX, _GObuttonY, _GObuttonWidht, _GObuttonHeight) then
+            game_state = 1
+        end
+    end
+end
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
 
 

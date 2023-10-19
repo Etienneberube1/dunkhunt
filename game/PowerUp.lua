@@ -3,28 +3,29 @@ local powerUpList = {}
 
 function createPowerUp()
 
-    print("init")
+    print("init powerUp")
     local powerUp = {}
 
     powerUp.image = love.graphics.newImage("assets/bullet.png")
-    
     powerUp.width = powerUp.image:getWidth()
     powerUp.height = powerUp.image:getHeight()
-
-    powerUp.despawnDelay = 10.0
-
+    
+    powerUp.despawnDelay = 3.0
+    
     powerUp.x = math.random(0, love.graphics.getWidth() - powerUp.width)
-    powerUp.y = math.random(0, love.graphics.getHeight() - powerUp.height)
+    -- the floating value the to make sure the bullet dosent spawn to low in the screen 
+    powerUp.y = math.random(0, love.graphics.getHeight() - powerUp.height - 400)
+    
 
 
-    powerUp.speed = math.random( 200, 400)
+    powerUp.speed = math.random( 100, 200)
 
     powerUp.draw = function()
         love.graphics.draw(powerUp.image, powerUp.x, powerUp.y)
     end
 
     powerUp.movement = function(dt)
-        powerUp.y = powerUp.y - powerUp.speed
+        powerUp.y = powerUp.y + powerUp.speed * dt
     end
 
     powerUp.gotCollected = function()
@@ -41,12 +42,12 @@ function drawPowerUp()
 end
 
 function updatePowerUp(dt)
-    
+
     for i = 1, #powerUpList, 1 do
         powerUpList[i].movement(dt)
     end
 
-    -- removing the duck from the screen after the delay hit 0
+    -- removing the powerUp from the screen after the delay hit 0
     for i = #powerUpList, 1, -1 do
         powerUpList[i].despawnDelay = powerUpList[i].despawnDelay - dt
 

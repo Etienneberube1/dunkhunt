@@ -25,7 +25,7 @@ function createDuck()
     duck.y = 400
     duck.x_velocity, duck.y_velocity = 1, -1
 
-    duck.speed = math.random( 130, 200)
+    duck.speed = math.random( 200, 320)
 
     duck.isFacingLeft = false  
 
@@ -59,6 +59,9 @@ function createDuck()
 
     duck.gotHit = function()
         _score = _score + duck.value
+        duck.x = math.random(0, love.graphics.getWidth() - duck.width)
+        duck.y = math.random(0, love.graphics.getHeight() - duck.height)
+        duck.speed = duck.speed + 75
     end
 
     table.insert( duckList, duck);
@@ -90,7 +93,7 @@ function updateDuck(dt)
 
     if delay <= 0.0 then
         createDuck()
-        delay = math.random( 2, 3 )
+        delay = math.random( 2, 2.5 )
     end
 end
 
